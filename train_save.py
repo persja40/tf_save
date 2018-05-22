@@ -44,8 +44,8 @@ outputs = tf.placeholder(shape=[1, 1], dtype=tf.float16, name='outputs')
 # 1st layer
 hid1_size = 10
 w1 = tf.Variable(tf.random_normal(
-    shape=[hid1_size, 1], stddev=0.01), name='w1')
-b1 = tf.Variable(tf.constant(0.1, shape=[hid1_size, 1]), name='b1')
+    shape=[hid1_size, 1], stddev=0.01, dtype=tf.float16), name='w1')
+b1 = tf.Variable(tf.constant(0.1, shape=[hid1_size, 1], dtype=tf.float16), name='b1')
 # change tf.nn.relu to sigmoid or tanh - LATER
 y1 = tf.nn.dropout(tf.nn.relu(
     tf.add(tf.matmul(w1, tf.transpose(inputs)), b1)), keep_prob=0.5)
