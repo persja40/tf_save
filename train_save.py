@@ -3,13 +3,18 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from math import *
+import time
 
 # DUBEG CODE
 # clear screen
 import os
 os.system('cls' if os.name == 'nt' else 'clear')
+#disable gpu
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"  
 
 # END DEBUG
+
+
 
 '''
 equation = sys.argv[1]
@@ -45,51 +50,70 @@ t_data = dat[learn_max_index:]
 t_results = res[learn_max_index:]
 
 # TENSORFLOW
+
+
 def dnn_perceptron(x, weights, biases):
     for i in range(1, len(weights)):
         w = 'w'+str(i)
         b = 'b'+str(i)
         if i == 1:
-            last_layer = tf.nn.sigmoid(
-                tf.add(tf.matmul(x, weights[w]), biases[b]))
+            # if x.get_shape()[0] == 1:
+            #     last_layer = tf.nn.sigmoid(tf.add(tf.scalar_mul(x[0], weights[w]), biases[b]))
+            # else:
+                last_layer = tf.nn.sigmoid(tf.add(tf.matmul(x, weights[w]), biases[b]))
         else:
             last_layer = tf.nn.sigmoid(
                 tf.add(tf.matmul(last_layer, weights[w]), biases[b]))
     return tf.matmul(last_layer, weights['out']) + biases['out']
 
-# ioputs & weights
-inputs = tf.placeholder(dtype=tf.float32, name='inputs', shape=[
-                        None, 1])  # change to your data size
-outputs = tf.placeholder(dtype=tf.float32, name='outputs', shape=[None])
 
 # training
-learning_rate = 0.1
+learning_rate = e-4
 training_epochs = 1000
 cost = None
 input_size = 1
 hidden_layers_nr = 2
 hidden_size = [10, 5]
 output_size = 1
+print_step = 100
+
+# ioputs & weights
+inputs = tf.placeholder(dtype=tf.float32, name='inputs', shape=[1, input_size])
+outputs = tf.placeholder(dtype=tf.float32, name='outputs', shape=[1, output_size])
 
 weights = {
-    'w1': tf.Variable(tf.random_normal([input_size, hidden_size[0]], 0, 0.1),dtype=tf.float32),
-    'w2': tf.Variable(tf.random_normal([hidden_size[0], hidden_size[1]], 0, 0.1),dtype=tf.float32),
-    'out': tf.Variable(tf.random_normal([hidden_size[1], output_size], 0, 0.1),dtype=tf.float32)
+    'w1': tf.Variable(tf.random_normal([input_size, hidden_size[0]], 0, 0.1), dtype=tf.float32),
+    'w2': tf.Variable(tf.random_normal([hidden_size[0], hidden_size[1]], 0, 0.1), dtype=tf.float32),
+    'out': tf.Variable(tf.random_normal([hidden_size[1], output_size], 0, 0.1), dtype=tf.float32)
 }
 biases = {
-    'b1': tf.Variable(tf.random_normal([hidden_size[0]], 0, 0.1),dtype=tf.float32),
-    'b2': tf.Variable(tf.random_normal([hidden_size[1]], 0, 0.1),dtype=tf.float32),
-    'out': tf.Variable(tf.random_normal([output_size], 0, 0.1),dtype=tf.float32)
+    'b1': tf.Variable(tf.random_normal([hidden_size[0]], 0, 0.1), dtype=tf.float32),
+    'b2': tf.Variable(tf.random_normal([hidden_size[1]], 0, 0.1), dtype=tf.float32),
+    'out': tf.Variable(tf.random_normal([output_size], 0, 0.1), dtype=tf.float32)
 }
 
-# print(biases)
-# print(weights)
-dnn_perceptron([[5.0]], weights, biases)
+model = dnn_perceptron(inputs, weights, biases)
+cost = tf.reduce_mean(tf.square(model - outputs))  # mse
+optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
+start = time.time()
+# config=tf.ConfigProto(log_device_placement=True)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    # print(sess.run(w1))
-    # print(sess.run(b1))
+    for epoch in range(training_epochs):
+        for l, r in zip(l_data, l_results):
+            #print("\n LEARN: {}\n".format(learn))
+            _, c, p = sess.run([optimizer, cost, model], feed_dict={
+                               inputs: np.reshape( l, (1, input_size) ),
+                               outputs: np.reshape( r, (1, output_size) )})
+
+        if epoch % print_step == 0:
+            print('Learning epoch: {}'.format(epoch))
+            print('MSE: ')
+            print('')
+
 
 #plt.plot(data, results, "b-")
 # plt.show()
+end = time.time()
+print("\n\n\n Czas: {}".format(end-start))
