@@ -10,12 +10,12 @@ import time
 import os
 os.system('cls' if os.name == 'nt' else 'clear')
 #disable gpu
-os.environ["CUDA_VISIBLE_DEVICES"]="-1"  
-
+os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 # END DEBUG
 
 
 
+# params will be taken from the console
 '''
 equation = sys.argv[1]
 lim_min = int(sys.argv[2])
@@ -23,20 +23,24 @@ lim_max = int(sys.argv[3])
 step = float(sys.argv[4])
 learn_pg = float(sys.argv[5])
 '''
+#, but for now ...
 equation = '2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
 lim_min = 0
 lim_max = 10
 step = 0.1
+#training data percentage from whole data set
 learn_pg = 0.7
 
-# calc data
+
+
+# prepare data
 data = np.arange(lim_min, lim_max + step, step)
 results = []
 for x in data:
     results.append(eval(equation))
 results = np.array(results)
 
-# shuffle data and divide to learning & testing
+# shuffle data and divide to training & testing
 s = np.arange(data.shape[0])
 np.random.shuffle(s)
 dat = data[s]
@@ -49,9 +53,10 @@ l_results = res[:learn_max_index]
 t_data = dat[learn_max_index:]
 t_results = res[learn_max_index:]
 
+
+
 # TENSORFLOW
-
-
+# output calc, multiplying matrices
 def dnn_perceptron(x, weights, biases):
     for i in range(1, len(weights)):
         w = 'w'+str(i)
@@ -67,7 +72,7 @@ def dnn_perceptron(x, weights, biases):
     return tf.matmul(last_layer, weights['out']) + biases['out']
 
 
-# training
+# training params
 learning_rate = e-4
 training_epochs = 1000
 cost = None
@@ -75,6 +80,7 @@ input_size = 1
 hidden_layers_nr = 2
 hidden_size = [10, 5]
 output_size = 1
+# debug print one in print_step
 print_step = 100
 
 # ioputs & weights
@@ -97,6 +103,7 @@ cost = tf.reduce_mean(tf.square(model - outputs))  # mse
 optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
 start = time.time()
+# detailed log
 # config=tf.ConfigProto(log_device_placement=True)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
