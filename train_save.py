@@ -116,11 +116,21 @@ with tf.Session() as sess:
 
         if epoch % print_step == 0:
             print('Learning epoch: {}'.format(epoch))
-            print('MSE: ')
+            print('MSE: '.format())
             print('')
 
+    # check results
+    i = 0
+    test = []
+    for x in data:
+        print(x)
+        test.append( sess.run(model, feed_dict={inputs: np.reshape( x, (1, input_size) )})[0][0] )
+        i+= 1
 
-#plt.plot(data, results, "b-")
-# plt.show()
+print(test)
+
+plt.plot(data, results, "b-")
+plt.plot(data, test, "r-")
+plt.show()
 end = time.time()
 print("\n\n\n Czas: {}".format(end-start))
