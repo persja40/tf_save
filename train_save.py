@@ -61,8 +61,8 @@ def model(X, w1, w2):
 
 l_data = np.reshape(l_data, (-1, 1))
 l_results = np.reshape(l_results, (-1, 1))
-t_data = np.reshape(l_data, (-1, 1))
-t_results = np.reshape(l_results, (-1, 1))
+t_data = np.reshape(t_data, (-1, 1))
+t_results = np.reshape(t_results, (-1, 1))
 print(l_data.shape)
 print(l_results.shape)
 
@@ -87,8 +87,8 @@ updates = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for epoch in range(training_epochs):
-        #for i in range(len(l_data)):
-        sess.run(updates, feed_dict={X: l_data, y: l_results})
+        for i in range(len(l_data)):
+            sess.run(updates, feed_dict={X: [l_data[i]], y: [l_results[i]]})
 
         train_accuracy = np.mean(np.argmax(l_results, axis=1) ==
                                  sess.run(predict, feed_dict={X: l_data, y: l_results}))
