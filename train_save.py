@@ -4,99 +4,129 @@ import numpy as np
 import matplotlib.pyplot as plt
 from math import *
 import time
-
-# DUBEG CODE
-# clear screen
 import os
-os.system('cls' if os.name == 'nt' else 'clear')
-# disable gpu
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-# END DEBUG
+
+def shuffle_dataset(data, results):
+    s = np.arange(data.shape[0])
+    np.random.shuffle(s)
+    s = np.arange(data.shape[0])
+    np.random.shuffle(s)
+    shuffled_data = data[s]
+    shuffled_results = results[s]
+    return shuffled_data, shuffled_results
 
 
-# params will be taken from the console
-'''
-equation = sys.argv[1]
-lim_min = int(sys.argv[2])
-lim_max = int(sys.argv[3])
-step = float(sys.argv[4])
-learn_pg = float(sys.argv[5])
-'''
-# , but for now ...
-equation = '2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
-lim_min = 0
-lim_max = 10
-step = 0.1
-# training data percentage from whole data set
-learn_pg = 0.7
+def divide_dataset(learn_max_index, shuffled_data):
+    train_data = shuffled_data[:learn_max_index]
+    test_data = shuffled_data[learn_max_index:]
 
-# prepare data
-data = np.arange(lim_min, lim_max + step, step)
-results = []
-for x in data:
-    results.append(eval(equation))
-results = np.array(results)
-
-# shuffle data and divide to training & testing
-s = np.arange(data.shape[0])
-np.random.shuffle(s)
-dat = data[s]
-res = results[s]
-
-learn_max_index = floor(len(dat)*learn_pg)
-
-l_data = dat[:learn_max_index]
-l_results = res[:learn_max_index]
-t_data = dat[learn_max_index:]
-t_results = res[learn_max_index:]
+    return train_data, test_data
 
 
-# TENSORFLOW
+def prepare_data(equation, lim_min, lim_max, step, learn_pg):
+    data = np.arange(lim_min, lim_max + step, step)
+    results = np.array([eval(equation) for x in data])
 
-def model(X, w1, w2):
-    X_w1 = tf.nn.sigmoid(tf.matmul(X, w1))
-    y_ = tf.matmul(X_w1, w2)
-    return y_
+    shuffled_data, shuffled_results = shuffle_dataset(data, results)
+    learn_max_index = floor(len(shuffled_data) * learn_pg)
+    train_data, test_data = divide_dataset(learn_max_index, shuffled_data)
+    train_results, test_results = divide_dataset(learn_max_index, shuffled_results)
+
+    print(train_data)
+
+    train_data = np.reshape(train_data, (-1, 1))
+    train_results = np.reshape(train_results, (-1, 1))
+    test_data = np.reshape(test_data, (-1, 1))
+    test_results = np.reshape(test_results, (-1, 1))
+
+    print("**")
+    print(train_data)
+
+    return data, results, train_data, train_results, test_data, test_results
 
 
-l_data = np.reshape(l_data, (-1, 1))
-l_results = np.reshape(l_results, (-1, 1))
-t_data = np.reshape(t_data, (-1, 1))
-t_results = np.reshape(t_results, (-1, 1))
-print(l_data.shape)
-print(l_results.shape)
+def generate_layers(N):
+    pass
 
-input_size = l_data.shape[1]
-h_size = 10
-output_size = l_results.shape[1]
-learning_rate = 0.01
-training_epochs = 1000
+if __name__ == '__main__':
+    # DUBEG CODE
+    # clear screen
+    os.system('cls' if os.name == 'nt' else 'clear')
+    # disable gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    # END DEBUG
 
-X = tf.placeholder(dtype=tf.float32, shape=[None, input_size])
-y = tf.placeholder(dtype=tf.float32, shape=[None, output_size])
 
-weights_1 = tf.Variable(tf.random_normal((input_size, h_size), stddev=0.1))
-weights_2 = tf.Variable(tf.random_normal((h_size, output_size), stddev=0.1))
-y_ = model(X, weights_1, weights_2)
+    # params will be taken from the console
+    '''
+    equation = sys.argv[1]
+    lim_min = int(sys.argv[2])
+    lim_max = int(sys.argv[3])
+    step = float(sys.argv[4])
+    learn_pg = float(sys.argv[5])
+    '''
+    # , but for now ...
+    equation = '2*x'#''2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
+    lim_min = 0
+    lim_max = 10
+    step = 1
+    # training data percentage from whole data set
+    learn_pg = 0.7
 
-predict = tf.argmax(y_, axis=1)
-#cost = tf.reduce_mean(tf.square(y_ - y))
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y, logits=y_))
-updates = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost)
+    # prepare data
+    data, results, train_data, train_results, test_data, test_results = \
+        prepare_data(equation, lim_min, lim_max, step, learn_pg)
+    # TENSORFLOW
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    for epoch in range(training_epochs):
-        for i in range(len(l_data)):
-            sess.run(updates, feed_dict={X: [l_data[i]], y: [l_results[i]]})
+    def model(X, w1, w2, b1, b2):
+        X_w1 = tf.nn.tanh(tf.add(tf.matmul(X, w1), b1))
+        y_ = tf.add(tf.matmul(X_w1, w2), b2)
+        return y_
 
-        train_accuracy = np.mean(np.argmax(l_results, axis=1) ==
-                                 sess.run(predict, feed_dict={X: l_data, y: l_results}))
-        test_accuracy = np.mean(np.argmax(t_results, axis=1) ==
-                                sess.run(predict, feed_dict={X: t_data, y: t_results}))
-        print("Epoch = %d, train accuracy = %.2f%%, test accuracy = %.2f%%"
-              % (epoch + 1, 100. * train_accuracy, 100. * test_accuracy))
-    print(sess.run(predict, feed_dict={X: l_data, y: l_results}))
+    input_size = train_data.shape[1]
+    output_size = train_results.shape[1]
+    h_size = 7
+    learning_rate = 0.01
+    training_epochs = 10
 
-#plt.plot(data, results, "b-")
-# plt.show()
+    x = tf.placeholder(dtype=tf.float32, shape=[None, input_size])
+    y = tf.placeholder(dtype=tf.float32)
+
+    weights_1 = tf.Variable(tf.random_normal([input_size, h_size], stddev=0.1))
+    weights_2 = tf.Variable(tf.random_normal([h_size, output_size], stddev=0.1))
+
+    bias_1 = tf.Variable(tf.random_normal([h_size]))
+    bias_2 = tf.Variable(tf.random_normal([output_size]))
+
+    y_ = model(x, weights_1, weights_2, bias_1, bias_2)
+    batch_size = 100
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y_, labels=y))
+    optimizer = tf.train.AdamOptimizer().minimize(cost)
+
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
+        for epoch in range(training_epochs):
+            epoch_loss = 0;
+            i = 0
+            while i < len(train_data):
+                start = i
+                end = i + batch_size
+                batch_x = np.array(train_data[start:end])
+                batch_y = np.array(train_results[start:end])
+                _, loss = sess.run([optimizer, cost], feed_dict={x: batch_x, y: batch_y})
+                epoch_loss += loss
+                i += batch_size
+
+            print("Epoch = %d,epoch loss = %.2f%%" % (epoch + 1, epoch_loss))
+            correct = tf.equal(tf.argmax(y_, 1), tf.argmax(y, 1))
+
+        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+        print(y)
+        print('Accuracy:', accuracy.eval({x: train_data, y: train_results}))
+        output = sess.run(y_, feed_dict={x:test_data})
+
+    print(output)
+    # plt.plot(data, results, "b-")
+    plt.plot(test_data, test_results, "bo")
+    plt.plot(test_data, output, "go")
+    plt.show()
