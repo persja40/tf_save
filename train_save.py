@@ -19,7 +19,7 @@ if __name__ == '__main__':
     learn_pg = float(sys.argv[5])
     '''
     # , but for now ...
-    equation = '2*sin(x)*cos(x)'#'2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
+    equation = '-2*sin(x)*cos(x)'#'2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
     lim_min = 0
     lim_max = 10
     step = 0.01
@@ -33,15 +33,16 @@ if __name__ == '__main__':
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
     h_size = 40
-    learning_rate = 0.01
-    training_epochs = 100
+    learning_rate = 0.00001
+    training_epochs = 1000
 
     x = tf.placeholder(dtype=tf.float32, shape=[None, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, [50])
+    y_ = model(x, [10,8,5])
     batch_size = 100
-    optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
+    loss = tf.reduce_mean(tf.squared_difference(y_, y))
+    optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
 
     print(y_)
 
@@ -49,15 +50,9 @@ if __name__ == '__main__':
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         for epoch in range(training_epochs):
-            i = 0
-            for i in range(training_epochs):
-                start = i
-                end = i + batch_size
-                batch_x = np.array(train_data[start:end])
-                batch_y = np.array(train_results[start:end])
-                sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
-                i += batch_size
-            mse = sess.run(tf.nn.l2_loss(y_ - train_results), feed_dict={x: train_data})
+            #for (t,r) in zip(train_data, train_results):
+            sess.run(optimizer, feed_dict={x: train_data, y: train_results})
+            mse = sess.run(loss, feed_dict={x: train_data, y:train_results})
             print("Epoch = %d,MSE = %.2f" % (epoch + 1, mse))
 
         save_model(saver, sess)
