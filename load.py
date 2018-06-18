@@ -39,30 +39,17 @@ if __name__ == '__main__':
     x = tf.placeholder(dtype=tf.float32, shape=[None, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, [50])
-    batch_size = 100
-    optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
+    model = model(x, [50])
+    # batch_size = 100
+    # optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
 
-    print(y_)
+    # print(y_)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
-        for epoch in range(training_epochs):
-            i = 0
-            for i in range(training_epochs):
-                start = i
-                end = i + batch_size
-                batch_x = np.array(train_data[start:end])
-                batch_y = np.array(train_results[start:end])
-                sess.run(optimizer, feed_dict={x: batch_x, y: batch_y})
-                i += batch_size
-            mse = sess.run(tf.nn.l2_loss(y_ - train_results), feed_dict={x: train_data})
-            print("Epoch = %d,MSE = %.2f" % (epoch + 1, mse))
+        saver.restore(sess, './saved_model/model_save')
+        output = sess.run(model, feed_dict={x:test_data})
 
-        save_model(saver, sess)
-        output = sess.run(y_, feed_dict={x:test_data})
-
-plt.plot(test_data, test_results, "bo")
 plt.plot(test_data, output, "go")
 plt.show()
