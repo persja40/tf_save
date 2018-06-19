@@ -36,10 +36,10 @@ if __name__ == '__main__':
     learning_rate = 0.01
     training_epochs = 100
 
-    x = tf.placeholder(dtype=tf.float32, shape=[None, input_size], name="x")
+    x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    model = model(x, [50])
+    model = model(x, [10])
     # batch_size = 100
     # optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
 
@@ -49,7 +49,9 @@ if __name__ == '__main__':
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         saver.restore(sess, './saved_model/model_save')
-        output = sess.run(model, feed_dict={x:test_data})
+        output = []
+        for t in test_data:
+            output.append(sess.run(model, feed_dict={x:[t]})[0][0])
 
 plt.plot(test_data, output, "go")
 plt.show()

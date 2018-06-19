@@ -33,8 +33,6 @@ def model(X, num_hidden):
     biases = []
     for layer in range(len(num_hidden)):
         if(layer == 0):
-            print(X.shape[1])
-            print(num_hidden[layer])
             weights.append(init_weights(
                 [X.get_shape().as_list()[1], num_hidden[layer]], xavier_params=(X.get_shape().as_list()[1], num_hidden[layer])))
         else:
@@ -48,8 +46,8 @@ def model(X, num_hidden):
     # multiply
     for layer in range(len(weights)):
         if (layer == 0):
-            tmp = tf.add(tf.matmul(X, weights[layer]), biases[layer])
+            tmp = tf.nn.tanh(tf.add(tf.matmul(X, weights[layer]), biases[layer]))
         else:
-            tmp = tf.add(tf.matmul(tmp, weights[layer]), biases[layer])
+            tmp = tf.nn.tanh(tf.add(tf.matmul(tmp, weights[layer]), biases[layer]),name='model')
 
-    return tf.nn.sigmoid(tmp,name='model')
+    return tmp

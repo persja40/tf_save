@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from net_utils import *
 from dataset_utils import *
+from statistics import *
 import sys
 import os
 
@@ -32,31 +33,35 @@ if __name__ == '__main__':
 
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
-    h_size = 40
-    learning_rate = 0.00001
-    training_epochs = 1000
+    learning_rate = 0.02
+    training_epochs = 200
 
-    x = tf.placeholder(dtype=tf.float32, shape=[None, input_size], name="x")
+    x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, [10,8,5])
+    y_ = model(x, [10])
     batch_size = 100
-    loss = tf.reduce_mean(tf.squared_difference(y_, y))
+    loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y)) # dont know if [0][0] is needed y_ returns matrix 1x1
     optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
-
-    print(y_)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         for epoch in range(training_epochs):
-            #for (t,r) in zip(train_data, train_results):
-            sess.run(optimizer, feed_dict={x: train_data, y: train_results})
-            mse = sess.run(loss, feed_dict={x: train_data, y:train_results})
-            print("Epoch = %d,MSE = %.2f" % (epoch + 1, mse))
+            for (t,r) in zip(train_data, train_results):
+                sess.run(optimizer, feed_dict={x: [t], y: [r]})
+            #print one in 10 epochs
+            if(epoch%10==0):
+                error = []
+                for (t,r) in zip(test_data, test_results):
+                    error.append(sess.run(loss, feed_dict={x: [t], y: [r]}))
+                print("Epoch = %d,MSE = %.2f" % (epoch+1, sum(error)))
 
         save_model(saver, sess)
-        output = sess.run(y_, feed_dict={x:test_data})
+        #output to plot
+        output = []
+        for t in test_data:
+            output.append(sess.run(y_, feed_dict={x:[t]})[0][0])
 
 plt.plot(test_data, test_results, "bo")
 plt.plot(test_data, output, "go")
