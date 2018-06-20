@@ -1,5 +1,6 @@
 import numpy as np
 from math import *
+import matplotlib.pyplot as plt
 
 def shuffle_dataset(data, results):
     s = np.arange(data.shape[0])
@@ -32,3 +33,11 @@ def prepare_data(equation, lim_min, lim_max, step, learn_pg):
     test_data = np.reshape(test_data, (-1, 1))
     test_results = np.reshape(test_results, (-1, 1))
     return data, results, train_data, train_results, test_data, test_results
+
+def plot_2d(data_list=[], xlabel="", ylabel=""):
+    plt.figure()
+    for data in data_list:
+        plt.plot(data["x_data"], data["y_data"], data["mark_type"], label=data["label"])
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
