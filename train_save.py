@@ -1,10 +1,7 @@
 import tensorflow as tf
-import numpy as np
 import matplotlib.pyplot as plt
 from net_utils import *
 from dataset_utils import *
-from statistics import *
-import sys
 import os
 
 if __name__ == '__main__':
@@ -26,6 +23,7 @@ if __name__ == '__main__':
     step = 0.01
     # training data percentage from whole data set
     learn_pg = 0.7
+    layers = eval('[25, 25]')
 
     # prepare data
     data, results, train_data, train_results, test_data, test_results = \
@@ -34,28 +32,28 @@ if __name__ == '__main__':
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
     learning_rate = 0.01
-    training_epochs = 300
+    training_epochs = 1000
 
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, [10, 5], [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
-    batch_size = 100
+    y_ = model(x, layers, [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
     loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y)) # dont know if [0][0] is needed y_ returns matrix 1x1
     optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
 
+    performance = []
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
-        for epoch in range(training_epochs):
+        for epoch in range(1, training_epochs+1):
             for (t,r) in zip(train_data, train_results):
                 sess.run(optimizer, feed_dict={x: [t], y: [r]})
             #print one in 10 epochs
+
+            mse = calculate_mse(sess, loss, x, y, test_data, test_results)
+            performance.append(mse)
             if(epoch%10==0):
-                error = []
-                for (t,r) in zip(test_data, test_results):
-                    error.append(sess.run(loss, feed_dict={x: [t], y: [r]}))
-                print("Epoch = %d,MSE = %.2f" % (epoch+1, sum(error)))
+                print("Epoch = %d,MSE = %.2f" % (epoch, mse))
 
         save_model(saver, sess)
         #output to plot
@@ -63,6 +61,26 @@ if __name__ == '__main__':
         for t in test_data:
             output.append(sess.run(y_, feed_dict={x:[t]})[0][0])
 
-plt.plot(test_data, test_results, "bo")
-plt.plot(test_data, output, "go")
+comparision_plot = [{
+    "x_data": test_data,
+    "y_data": test_results,
+    "mark_type": "bo",
+    "label": "Wyniki"
+}, {
+    "x_data": test_data,
+    "y_data": output,
+    "mark_type": "go",
+    "label": "Odpowiedź sieci"
+}]
+
+performance_plot = [{
+    "x_data": range(1, training_epochs+1),
+    "y_data": performance,
+    "mark_type": "-",
+    "label": "MSE"
+}]
+
+plot_2d(data_list=comparision_plot, xlabel="X", ylabel="Y")
+plot_2d(data_list=performance_plot, xlabel="epoka", ylabel="MSE")
+
 plt.show()

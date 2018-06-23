@@ -28,6 +28,13 @@ def init_biases(shape):
     return tf.Variable(tf.zeros(shape, dtype=tf.float32))
 
 
+def calculate_mse(sess, loss, x, y, test_data, test_results):
+    error = []
+    for (t, r) in zip(test_data, test_results):
+        error.append(sess.run(loss, feed_dict={x: [t], y: [r]}))
+    return sum(error)
+
+
 def model(X, num_hidden, functions):
     weights = []
     biases = []

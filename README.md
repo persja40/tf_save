@@ -8,11 +8,11 @@ matplotlib
 Training and saving NN
 ----
 ```bash
-python .\train_save.py <function> <limit_min> <limit_max> <step> <learning_data_ratio>
+python .\train_save.py <function> <limit_min> <limit_max> <step> <learning_data_ratio> <hidden_layers_num>
 ```
 ### Example
 ```bash
-python .\train_save.py '2*sin(1.5*x-5)*cos(-3.2*x+1.7)' 0 10 0.1 0.7
+python .\train_save.py '2*sin(1.5*x-5)*cos(-3.2*x+1.7)' 0 10 0.1 0.7 [10]
 ```
 Loading & using NN from file
 ---
