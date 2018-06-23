@@ -32,14 +32,13 @@ if __name__ == '__main__':
 
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
-    h_size = 40
     learning_rate = 0.01
     training_epochs = 100
 
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    model = model(x, [10])
+    model = model(x, [10, 5], [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
     # batch_size = 100
     # optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
 

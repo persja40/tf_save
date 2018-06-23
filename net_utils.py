@@ -28,7 +28,7 @@ def init_biases(shape):
     return tf.Variable(tf.zeros(shape, dtype=tf.float32))
 
 
-def model(X, num_hidden):
+def model(X, num_hidden, functions):
     weights = []
     biases = []
     for layer in range(len(num_hidden)):
@@ -46,8 +46,8 @@ def model(X, num_hidden):
     # multiply
     for layer in range(len(weights)):
         if (layer == 0):
-            tmp = tf.nn.tanh(tf.add(tf.matmul(X, weights[layer]), biases[layer]))
+            tmp = functions[layer](tf.add(tf.matmul(X, weights[layer]), biases[layer]))
         else:
-            tmp = tf.nn.tanh(tf.add(tf.matmul(tmp, weights[layer]), biases[layer]),name='model')
+            tmp = functions[layer](tf.add(tf.matmul(tmp, weights[layer]), biases[layer]),name='model')
 
     return tmp
