@@ -11,20 +11,11 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
     # params will be taken from the console
-    '''
     equation = sys.argv[1]
     lim_min = int(sys.argv[2])
     lim_max = int(sys.argv[3])
     step = float(sys.argv[4])
     learn_pg = float(sys.argv[5])
-    '''
-    # , but for now ...
-    equation = '2*sin(x)*cos(x)'#'2*sin(1.5*x-5)*cos(-3.2*x+1.7)'
-    lim_min = 0
-    lim_max = 10
-    step = 0.01
-    # training data percentage from whole data set
-    learn_pg = 0.7
 
     # prepare data
     data, results, train_data, train_results, test_data, test_results = \
@@ -39,10 +30,6 @@ if __name__ == '__main__':
     y = tf.placeholder(dtype=tf.float32, name="y")
 
     model = model(x, [10, 5], [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
-    # batch_size = 100
-    # optimizer = tf.train.AdamOptimizer(name="optimizer").minimize(tf.nn.l2_loss(y_ - y))
-
-    # print(y_)
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
