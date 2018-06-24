@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 from net_utils import *
 from dataset_utils import *
 import os
+import sys
 
 if __name__ == '__main__':
     # os.system('cls' if os.name == 'nt' else 'clear')
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
     # params will be taken from the console
-    equation = sys.argv[1]
+    equation = eval(sys.argv[1])
     lim_min = int(sys.argv[2])
     lim_max = int(sys.argv[3])
     step = float(sys.argv[4])
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
     learning_rate = 0.01
-    training_epochs = 1000
+    training_epochs = 10
 
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
