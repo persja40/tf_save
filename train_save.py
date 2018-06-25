@@ -10,7 +10,7 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
     # params will be taken from the console
-    equation = sys.argv[1]
+    equation = eval(sys.argv[1])
     lim_min = int(sys.argv[2])
     lim_max = int(sys.argv[3])
     step = float(sys.argv[4])

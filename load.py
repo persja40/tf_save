@@ -16,12 +16,6 @@ if __name__ == '__main__':
     lim_max = int(sys.argv[3])
     step = float(sys.argv[4])
     learn_pg = float(sys.argv[5])
-    layers = eval(sys.argv[6])
-    directory = str(sys.argv[7])
-
-
-    print(directory)
-    print(type(directory))
 
     # prepare data
     data, results, train_data, train_results, test_data, test_results = \
@@ -32,18 +26,13 @@ if __name__ == '__main__':
     learning_rate = 0.01
     training_epochs = 100
 
-    x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
-    y = tf.placeholder(dtype=tf.float32, name="y")
-
-
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        # saver = tf.train.Saver()
-        # saver.restore(sess, directory)
-        model = load_model()
+        imported_meta = load_model()
+        imported_meta.restore(sess, latest_checkpoint())
         output = []
         for t in test_data:
-            output.append(sess.run(model, feed_dict={x:[t]})[0][0])
+            output.append(sess.run('model:0', feed_dict={'x:0':[t]})[0][0])
 
 plt.plot(test_data, output, "go")
 plt.show()

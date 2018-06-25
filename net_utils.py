@@ -2,7 +2,6 @@ import tensorflow as tf
 import numpy as np
 import os
 
-
 def save_model(saver, sess):
     if not os.path.exists('saved_model'):
         os.makedirs('saved_model')
