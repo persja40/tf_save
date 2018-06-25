@@ -24,12 +24,12 @@ if __name__ == '__main__':
     input_size = train_data.shape[1]
     output_size = train_results.shape[1]
     learning_rate = 0.01
-    training_epochs = 10
+    training_epochs = 1000
 
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, layers, [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
+    y_ = model(x, layers, [tf.nn.tanh, tf.nn.tanh, tf.nn.tanh])
     loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y)) # dont know if [0][0] is needed y_ returns matrix 1x1
     optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
 
