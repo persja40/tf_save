@@ -11,7 +11,7 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
     # params will be taken from the console
-    equation = eval(sys.argv[1])
+    equation = sys.argv[1]
     lim_min = int(sys.argv[2])
     lim_max = int(sys.argv[3])
     step = float(sys.argv[4])
@@ -35,12 +35,12 @@ if __name__ == '__main__':
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    model = model(x, layers, [tf.nn.tanh,tf.nn.tanh, tf.nn.tanh])
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        saver = tf.train.Saver()
-        saver.restore(sess, directory)
+        # saver = tf.train.Saver()
+        # saver.restore(sess, directory)
+        model = load_model()
         output = []
         for t in test_data:
             output.append(sess.run(model, feed_dict={x:[t]})[0][0])
