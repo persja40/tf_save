@@ -16,6 +16,7 @@ if __name__ == '__main__':
     step = float(sys.argv[4])
     learn_pg = float(sys.argv[5])
     layers = eval(sys.argv[6])
+    functions = eval(sys.argv[7])
 
     # prepare data
     data, results, train_data, train_results, test_data, test_results = \
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     x = tf.placeholder(dtype=tf.float32, shape=[1, input_size], name="x")
     y = tf.placeholder(dtype=tf.float32, name="y")
 
-    y_ = model(x, layers, [tf.nn.tanh, tf.nn.tanh, tf.nn.tanh])
+    y_ = model(x, layers, functions)
     loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y)) # dont know if [0][0] is needed y_ returns matrix 1x1
     optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
 
