@@ -21,10 +21,10 @@ if __name__ == '__main__':
     data, results, train_data, train_results, test_data, test_results = \
         prepare_data(equation, lim_min, lim_max, step, learn_pg)
 
-    input_size = train_data.shape[1]
-    output_size = train_results.shape[1]
-    learning_rate = 0.01
-    training_epochs = 100
+    # input_size = train_data.shape[1]
+    # output_size = train_results.shape[1]
+    # learning_rate = 0.01
+    # training_epochs = 100
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
