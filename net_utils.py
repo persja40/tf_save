@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+from statistics import mean
 
 def save_model(saver, sess):
     if not os.path.exists('saved_model'):
@@ -18,8 +19,8 @@ def latest_checkpoint():
 
 def init_weights(shape, xavier_params=(None, None)):
     (fan_in, fan_out) = xavier_params
-    low = -1*np.sqrt(6.0/(fan_in + fan_out))  # {sigmoid:4, tanh:1}
-    high = 1*np.sqrt(6.0/(fan_in + fan_out))
+    low = -1*np.sqrt(1.0/(fan_in + fan_out))  # {sigmoid:4, tanh:1}
+    high = 1*np.sqrt(1.0/(fan_in + fan_out))
     return tf.Variable(tf.random_uniform(shape, minval=low, maxval=high, dtype=tf.float32))
 
 
@@ -30,7 +31,7 @@ def init_biases(shape):
 def calculate_mse(sess, loss, x, y, test_data, test_results):
     error = []
     for (t, r) in zip(test_data, test_results):
-        error.append(sess.run(loss, feed_dict={x: [t], y: [r]}))
+        error.append(float(sess.run(loss, feed_dict={x: [t], y: [r]})))
     return sum(error)
 
 

@@ -31,7 +31,7 @@ if __name__ == '__main__':
     y = tf.placeholder(dtype=tf.float32, name="y")
 
     y_ = model(x, layers, functions)
-    loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y)) # dont know if [0][0] is needed y_ returns matrix 1x1
+    loss = tf.reduce_mean(tf.squared_difference(y_[0][0], y))
     optimizer = tf.train.GradientDescentOptimizer(learning_rate,name="optimizer").minimize(loss)
 
     performance = []
@@ -41,10 +41,10 @@ if __name__ == '__main__':
         for epoch in range(1, training_epochs+1):
             for (t,r) in zip(train_data, train_results):
                 sess.run(optimizer, feed_dict={x: [t], y: [r]})
-            #print one in 10 epochs
 
             mse = calculate_mse(sess, loss, x, y, test_data, test_results)
             performance.append(mse)
+            #print one in 10 epochs
             if(epoch%10==0):
                 print("Epoch = %d,MSE = %.2f" % (epoch, mse))
 

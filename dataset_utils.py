@@ -5,8 +5,6 @@ import matplotlib.pyplot as plt
 def shuffle_dataset(data, results):
     s = np.arange(data.shape[0])
     np.random.shuffle(s)
-    s = np.arange(data.shape[0])
-    np.random.shuffle(s)
     shuffled_data = data[s]
     shuffled_results = results[s]
     return shuffled_data, shuffled_results
